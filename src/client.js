@@ -122,6 +122,7 @@ assign(Client.prototype, {
     this.emit('query', assign({__knexUid: connection.__knexUid}, obj))
     debugQuery(obj.sql)
     return this._query.call(this, connection, obj).catch(function(err) {
+      this.emit('queryEnd', assign({__knexUid: connection.__knexUid}, obj))
       err.message = SqlString.format(obj.sql, obj.bindings) + ' - ' + err.message
       throw err
     })
