@@ -20,7 +20,7 @@ module.exports = function makeKnex(client) {
   }
 
   assign(knex, {
-    
+
     Promise: require('../promise'),
 
     // A new query builder instance
@@ -68,7 +68,7 @@ module.exports = function makeKnex(client) {
       return builder[method].apply(builder, arguments)
     }
   })
-  
+
   knex.client = client
 
   Object.defineProperties(knex, {
@@ -99,13 +99,12 @@ module.exports = function makeKnex(client) {
 
   })
 
-  // Passthrough all "start" and "query" events to the knex object.
-  client.on('start', function(obj) {
-    knex.emit('start', obj)
-  })
-  
-  client.on('query', function(obj) {
-    knex.emit('query', obj)
+  // Passthrough all relevant events to the knex object.
+  var passthroughEvents = ['start', 'query', 'queryEnd', 'queryError'];
+  passthroughEvents.forEach(function (eventName) {
+    client.on(eventName, function(obj) {
+      knex.emit(eventName, obj)
+    })
   })
 
   client.makeKnex = function(client) {

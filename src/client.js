@@ -122,10 +122,12 @@ assign(Client.prototype, {
     this.emit('query', assign({__knexUid: connection.__knexUid}, obj))
     debugQuery(obj.sql)
     return this._query.call(this, connection, obj).catch(function(err) {
-      this.emit('queryEnd', assign({__knexUid: connection.__knexUid}, obj))
+      this.emit('queryError', assign({__knexUid: connection.__knexUid}, obj))
       err.message = SqlString.format(obj.sql, obj.bindings) + ' - ' + err.message
       throw err
-    })
+  }).then(function () {
+      this.emit('queryEnd', assign({__knexUid: connection.__knexUid}, obj))
+  })
   },
 
   stream: function(connection, obj, stream, options) {
@@ -133,6 +135,7 @@ assign(Client.prototype, {
     this.emit('query', assign({__knexUid: connection.__knexUid}, obj))
     debugQuery(obj.sql)
     return this._stream.call(this, connection, obj, stream, options)
+    // TODO: emit queryEnd and queryError events
   },
 
   wrapIdentifier: function(value) {
